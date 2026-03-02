@@ -1,46 +1,17 @@
+import { clickElement, checkQuerries, dettachDebugger } from './perform';
+
 console.log("extention loaded");
 
-var debuggerAttached = false
-
 setInterval(() => {
-  const skipAddBtn = document.querySelector(".ytp-skip-ad-button");
-  if (skipAddBtn && !debuggerAttached) {
-    console.log("Debugger Attach")
-    debuggerAttached = true;
-    chrome.runtime.sendMessage({
-      type: "debug.attach",
-    });
+  clickElement({
+    query: ".ytp-skip-ad-button",
+    button: "left",
+  });
 
-  } else if (!skipAddBtn && debuggerAttached) {
-    console.log("Debugger detach")
-    debuggerAttached = false
-    chrome.runtime.sendMessage({
-      type: "debug.detach",
-    })
-  }
-
-  if (skipAddBtn && debuggerAttached)  {
-    clickElementByQuery(".ytp-skip-ad-button", "left")
-  }
+  // if (!checkQuerries([ ".ytp-skip-ad-button" ])) {
+  //   dettachDebugger();
+  // }
 }, 500)
-
-function clickElementByQuery(query: string, button: string) {
-  const skipAddBtn = document.querySelector(query) as HTMLButtonElement;
-
-  if (skipAddBtn){
-    const rect = skipAddBtn.getBoundingClientRect();
-    console.log("Click ", rect);
-    chrome.runtime.sendMessage({
-      type: "click",
-      position: {
-        x: rect.x + rect.width / 2,
-        y: rect.y + rect.height / 2,
-      },
-      button,
-    })
-
-  }
-}
 
 // // Check if the browser supports the Media Session API
 // if ('mediaSession' in navigator) {

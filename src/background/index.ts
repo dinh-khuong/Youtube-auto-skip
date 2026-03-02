@@ -77,12 +77,15 @@ chrome.debugger.onDetach.addListener((source: chrome._debugger.Debuggee, reason:
   Reflect.deleteProperty(tabs, `${source.tabId}`);
 });
 
-// chrome.tabs.onActivated.addListener((activeInfo: chrome.tabs.OnActivatedInfo) => {
-//   console.log("on current Tab: ", activeInfo)
-//   if (!tabs[activeInfo.tabId]) {
-//     attachToTab(activeInfo.tabId);
-//   }
-// })
+chrome.alarms.create("keepAliveAlarm", { periodInMinutes: 0.40 });
 
+// 2. Listen for the alarm to wake the worker up
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "keepAliveAlarm") {
+    console.log("Alarm woke up the background worker!");
+    // You don't actually have to put code here. Just the alarm firing 
+    // is enough to boot the Service Worker back up.
+  }
+});
 
 

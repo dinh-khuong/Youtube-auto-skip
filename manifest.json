@@ -6,7 +6,7 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["debugger", "tabs", "runtime"],
+  "permissions": ["debugger", "alarms"],
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],
