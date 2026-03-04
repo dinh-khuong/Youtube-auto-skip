@@ -6,10 +6,10 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["debugger", "alarms"],
+  "permissions": ["debugger", "alarms", "storage", "runtime", "tabs"],
   "content_scripts": [
     {
-      "matches": ["https://www.youtube.com/*"],
+      "matches": ["https://www.youtube.com/*", "<all_urls>"],
       "js": ["contentScript.js"]
     }
   ],

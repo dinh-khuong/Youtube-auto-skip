@@ -1,0 +1,75 @@
+:root {
+	--background-selection: #214a63;
+	--background-primary: #1c1e26;
+	--foreground-primary: #e0e0e0;
+
+	--black-normal: #16161c;
+	--red-normal: #e95678;
+	--green-normal: #29d398;
+	--yellow-normal: #fab795;
+	--blue-normal: #26bbd9;
+	--magenta-normal: #ee64ac;
+	--cyan-normal: #59e1e3;
+	--white-normal: #d5d8da;
+
+	--black-bright: #5b5858;
+	--red-bright: #ec6a88;
+	--green-bright: #3fdaa4;
+	--yellow-bright: #fbc3a7;
+	--blue-bright: #3fc4de;
+	--magenta-bright: #f075b5;
+	--cyan-bright: #6be4e6;
+	--white-bright: #d5d8da;
+}
+
+body {
+	background-color: var(--background-primary);
+	color: var(--foreground-primary);
+}
+
+#main-body {
+	width: 250px;
+}
+
+#popup-header {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	gap: 10px;
+}
+
+.header-item {
+	border: 1px solid var(--blue-bright);
+}
+
+.header-item:hover {
+	background-color: var(--background-selection);
+	color: var(--white-bright);
+}
+
+#main-content {
+	padding: 0 15px;
+	margin-top: 15px;
+}
+
+.column-list {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.macro-item {
+	background-color: var(--blue-normal);
+}
+
+.create-macro {
+	.create-macro-btn-holder {
+		display: flex;
+		flex-direction: row;
+		gap: 5px;
+		justify-content: center;
+		margin-bottom: 5px;
+	}
+}
+
+

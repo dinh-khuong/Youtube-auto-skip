@@ -23,7 +23,12 @@ export default {
 			patterns: [{
 				from: path.resolve('./src/popup.html'),
 				to: path.resolve('dist'),
-			}]
+			},
+			{
+				from: path.resolve('./src/popup.css'),
+				to: path.resolve('dist'),
+			}
+			]
 		}),
 		new CopyPlugin({
 			patterns: [{
@@ -67,7 +72,7 @@ export default {
 			// 		options: {
 			// 			presets: [
 			// 				'@babel/preset-env',
-							// ['@babel/preset-react', {runtime: 'automatic'}],
+			// ['@babel/preset-react', {runtime: 'automatic'}],
 			// 				'@babel/preset-typescript',
 			// 			],
 			// 		},

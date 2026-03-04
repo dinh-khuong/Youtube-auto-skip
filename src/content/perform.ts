@@ -12,8 +12,6 @@ function clickElement({ query, button }: { query: string, button: string }) {
     });
     console.log("Debugger Attach")
   } 
-  // else if (!eleButton && debuggerAttached) {
-  // }
 
   if (eleButton) {
     const rect = eleButton.getBoundingClientRect();
@@ -40,12 +38,13 @@ function checkQuerries(querries: Array<string>) {
 }
 
 function dettachDebugger() {
-  debuggerAttached = false
-
-  chrome.runtime.sendMessage({
-    type: "debug.detach",
-  });
-  console.log("Debugger detach");
+  if (debuggerAttached) {
+    debuggerAttached = false
+    chrome.runtime.sendMessage({
+      type: "debug.detach",
+    });
+    console.log("Debugger detach");
+  }
 }
 
 export { clickElement, dettachDebugger, checkQuerries };

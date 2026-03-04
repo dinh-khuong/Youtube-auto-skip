@@ -1,3 +1,5 @@
+import type { Macro } from "../content/macro";
+
 console.log("Background runing")
 
 let tabs: { [key: number]: boolean } = {}
@@ -16,12 +18,17 @@ function attachToTab(tabId: number) {
       return;
     }
   });
+  console.log("Attach Debugger: ", tabs);
 }
 
 function deatchToTab(tabId: number) {
-  if (tabs[tabId]) {
-    chrome.debugger.detach({ tabId });
+  if (!tabs[tabId]) {
+    return;
   }
+  Reflect.deleteProperty(tabs, `${tabId}`);
+  chrome.debugger.detach({ tabId });
+
+  console.log("Detach Debugger: ", tabs);
 }
 
 function clickMouse(tabId: number, message: any) {
@@ -46,7 +53,7 @@ function clickMouse(tabId: number, message: any) {
           y: position.y,
           button,
         })
-      }, 300);
+      }, 150);
     });
 }
 
@@ -74,7 +81,6 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
 // Remember to add chrome.debugger.onDetach listener for cleanup
 chrome.debugger.onDetach.addListener((source: chrome._debugger.Debuggee, reason: `${chrome._debugger.DetachReason}`) => {
   console.log(`Debugger detached from ${source.tabId} for reason: ${reason}`);
-  Reflect.deleteProperty(tabs, `${source.tabId}`);
 });
 
 chrome.alarms.create("keepAliveAlarm", { periodInMinutes: 0.40 });
@@ -88,4 +94,38 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
+var macros: Array<Macro> = [];
+var app: {
+	onNewMacro: boolean,
+	currentMacro: number,
+} = {
+	onNewMacro: false,
+	currentMacro: -1,
+};
+
+chrome.storage.local.get(["macros", "app"], (result) => {
+  if (result.macros) {
+    //@ts-ignore
+    macros = result.macros;
+  }
+  if (result.app) {
+    //@ts-ignore
+    app = result.app;
+  }
+});
+
+function updateGlobal() {
+	chrome.storage.local.set({ macros, app }, () => {
+		console.log("Save data", macros, app);
+	});
+}
+
+chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
+	if (message.type == "popup.MacroEvent" && app.onNewMacro) {
+		if (app.currentMacro >= 0) {
+			macros[app.currentMacro].events.push(message.macro);
+			updateGlobal();
+		}
+	}
+});
 
