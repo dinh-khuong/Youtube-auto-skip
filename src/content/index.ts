@@ -1,16 +1,55 @@
 import { clickElement, checkQuerries, dettachDebugger } from './perform';
-import type { MacroEvent } from './macro';
+import { type MacroEvent, type Macro, type App } from './macro';
 
-setInterval(() => {
-  clickElement({
-    query: ".ytp-skip-ad-button",
-    button: "left",
-  });
+var macros: Array<Macro> = [];
+var app: App = {
+  createIdx: 0,
+  onNewEvent: false,
+  view: "macro-list",
+  currentMacro: -1,
+};
 
-  if (!checkQuerries([ ".ytp-skip-ad-button" ])) {
-    dettachDebugger();
+chrome.storage.local.get(["macros", "app"], (result) => {
+  if (result.macros) {
+    //@ts-ignore
+    macros = result.macros;
   }
-}, 500)
+  if (result.app) {
+    //@ts-ignore
+    app = result.app;
+  }
+});
+
+var stopingId = -1;
+
+function runMacro(macro: Macro) {
+  function oneEvent(index: number) {
+    if (macro.id === stopingId) {
+      stopingId = -1;
+      return;
+    }
+
+    if (index >= macro.events.length) {
+      setTimeout(() => {
+        oneEvent(0);
+      }, 500);
+      return;
+    }
+
+    const event = macro.events[index];
+    clickElement({
+      event, button: "left",
+    });
+    
+    setTimeout(() => {
+      oneEvent(index + 1);
+    }, 500);
+  }
+
+  oneEvent(0);
+}
+
+macros.filter((ele) => ele.active).forEach(runMacro);
 
 const boxElement = document.createElement("div");
 boxElement.id = "auto-click-box";
@@ -40,6 +79,10 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
   if (message.type === "pickup.Element") {
     document.addEventListener('mouseover', drawBoundingBox, { passive: true });
     document.addEventListener('click', addNewMacro);
+  } else if (message.type === "play.Macro") {
+    runMacro(message.macro);
+  } else if (message.type == "stop.Macro") {
+    stopingId = message.macro.id;
   }
 })
 
@@ -52,20 +95,20 @@ function addNewMacro(event: PointerEvent) {
   const eleId = currentElement.id;
   const eleClasses = currentElement.classList.toString();
 
-  let macro: MacroEvent = {
+  let macroEvent: MacroEvent = {
     type: "element",
     id: eleId,
     className: eleClasses,
     index: 0,
   };
   
-  if (macro.id === "") {
+  if (macroEvent.id === "") {
     const candidates = document.getElementsByClassName(eleClasses);
     for (const candidate of candidates) {
       if (candidate === currentElement) {
         break;
       }
-      macro.index += 1;
+      macroEvent.index += 1;
     }
   }
 
@@ -73,11 +116,11 @@ function addNewMacro(event: PointerEvent) {
   boxElement.style.height = "0";
   boxElement.style.left =  "0";
   boxElement.style.top = "0";
-  console.log("New event: ", macro);
+  console.log("New event: ", macroEvent);
 
   chrome.runtime.sendMessage({
     type: "popup.MacroEvent",
-    macro,
+    macro: macroEvent,
   })
 
   document.removeEventListener('mouseover', drawBoundingBox);

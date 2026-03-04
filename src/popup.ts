@@ -2,6 +2,7 @@ import type { Macro, MacroEvent, App } from "./content/macro";
 
 var macros: Array<Macro> = [];
 var app: App = {
+	createIdx: 0,
 	onNewEvent: false,
 	view: "macro-list",
 	currentMacro: -1,
@@ -68,7 +69,7 @@ function addMacroItem(macrosList: HTMLElement, macro: Macro) {
 	let editBtn = document.createElement('button');
 	editBtn.innerHTML = `<img src="./assets/edit.svg" alt="Edit" width="20" height="20"></img>`;
 	editBtn.onclick = () => {
-		const index = macros.findIndex((ele) => ele === macro);
+		const index = macros.findIndex((ele) => ele.id === macro.id);
 		if (index !== -1) {
 			app.currentMacro = index;
 			app.onNewEvent = true;
@@ -80,12 +81,39 @@ function addMacroItem(macrosList: HTMLElement, macro: Macro) {
 	let deleteBtn = document.createElement('button');
 	deleteBtn.innerHTML = `<img src="./assets/trash.svg" alt="Delete" width="20" height="20"></img>`;
 	deleteBtn.onclick = () => {
-		macros = macros.filter((ele) => ele !== macro);
-		// app.view = "macro-list";
+		macros = macros.filter((ele) => ele.id !== macro.id);
+		app.view = "macro-list";
 		updateGlobal();
 		render();
 	};
 
+	let playBtn = document.createElement('button');
+	playBtn.innerHTML = `${macro.active ?
+	`<img src="./assets/pause.svg" alt="Pause" width="20" height="20"></img>` :
+	`<img src="./assets/play.svg" alt="Play" width="20" height="20"></img>`
+		}`;
+
+	playBtn.onclick = () => {
+		macro.active = !macro.active;
+		app.view = "macro-list";
+		chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
+			const tab = tabs[0];
+			if (macro.active) {
+				chrome.tabs.sendMessage(tab.id, {
+					type: "play.Macro",
+					macro,
+				});
+			} else {
+				chrome.tabs.sendMessage(tab.id, {
+					type: "stop.Macro",
+					macro
+				})
+			}
+		});
+		updateGlobal();
+		render();
+	};
+	newItem.appendChild(playBtn);
 
 	newItem.appendChild(editBtn);
 	newItem.appendChild(deleteBtn);
@@ -119,7 +147,9 @@ function createMacro() {
 	if (!app.onNewEvent) {
 		document.getElementById("new-macro").addEventListener('click', () => {
 			macros.push({
+				id: app.createIdx++,
 				name: "new macro",
+				active: false,
 				events: [],
 			});
 			app.onNewEvent = true;

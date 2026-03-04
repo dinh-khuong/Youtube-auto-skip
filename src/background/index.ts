@@ -1,6 +1,20 @@
-import type { Macro } from "../content/macro";
+import type { Macro, App } from "../content/macro";
 
 console.log("Background runing")
+
+var macros: Array<Macro> = [];
+var app: App = {
+  onNewEvent: false,
+  currentMacro: -1,
+  view: "macro-list",
+  createIdx: 0,
+};
+
+if (false) {
+  chrome.storage.local.set({ macros, app }, () => {
+    console.log("Save data", macros, app);
+  });
+}
 
 let tabs: { [key: number]: boolean } = {}
 // Example function to attach to a tab (triggered by some user action, e.g., button click)
@@ -34,8 +48,8 @@ function deatchToTab(tabId: number) {
 function clickMouse(tabId: number, message: any) {
   const position = message.position;
   const button = message.button;
+
   // console.log("Mouse click on: ", position)
-  //
   // console.log("Mouse Pressed");
   chrome.debugger.sendCommand({ tabId }, "Input.dispatchMouseEvent", {
     type: 'mousePressed',
@@ -44,17 +58,17 @@ function clickMouse(tabId: number, message: any) {
     clickCount: 1,
     button,
   }).then(() => {
-      setTimeout(() => {
-        // console.log("Mouse Released")
-        chrome.debugger.sendCommand({ tabId }, "Input.dispatchMouseEvent", {
-          type: 'mouseReleased',
-          clickCount: 1,
-          x: position.x,
-          y: position.y,
-          button,
-        })
-      }, 150);
-    });
+    setTimeout(() => {
+      // console.log("Mouse Released")
+      chrome.debugger.sendCommand({ tabId }, "Input.dispatchMouseEvent", {
+        type: 'mouseReleased',
+        clickCount: 1,
+        x: position.x,
+        y: position.y,
+        button,
+      })
+    }, 150);
+  });
 }
 
 chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
@@ -68,13 +82,13 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
     case "click":
       attachToTab(tabId);
       clickMouse(tabId, message);
-    break;
+      break;
     case "debug.attach":
       attachToTab(tabId);
-    break;
-    case  "debug.detach":
+      break;
+    case "debug.detach":
       deatchToTab(tabId);
-    break;
+      break;
   }
 })
 
@@ -94,14 +108,6 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
-var macros: Array<Macro> = [];
-var app: {
-	onNewMacro: boolean,
-	currentMacro: number,
-} = {
-	onNewMacro: false,
-	currentMacro: -1,
-};
 
 chrome.storage.local.get(["macros", "app"], (result) => {
   if (result.macros) {
@@ -114,7 +120,7 @@ chrome.storage.local.get(["macros", "app"], (result) => {
   }
 
   chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
-    if (message.type == "popup.MacroEvent" && app.onNewMacro) {
+    if (message.type == "popup.MacroEvent" && app.onNewEvent) {
       if (app.currentMacro >= 0) {
         macros[app.currentMacro].events.push(message.macro);
         updateGlobal();
@@ -124,9 +130,9 @@ chrome.storage.local.get(["macros", "app"], (result) => {
 });
 
 function updateGlobal() {
-	chrome.storage.local.set({ macros, app }, () => {
-		console.log("Save data", macros, app);
-	});
+  chrome.storage.local.set({ macros, app }, () => {
+    console.log("Save data", macros, app);
+  });
 }
 
 

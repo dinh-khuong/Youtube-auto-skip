@@ -12,6 +12,8 @@ export type MacroEvent = {
 };
 
 export type Macro = {
+  id: number,
+  active: boolean,
   name: string,
   events: Array<MacroEvent>
 };
@@ -20,4 +22,6 @@ export type App = {
   onNewEvent: boolean,
   currentMacro: number,
   view: "macro-list" | "event-list",
+  createIdx: number,
 };
+

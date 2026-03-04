@@ -1,20 +1,32 @@
 
-var debuggerAttached = false
+// var debuggerAttached = false
 
-function clickElement({ query, button }: { query: string, button: string }) {
-  const eleButton = document.querySelector(query) as HTMLButtonElement;
+import type { MacroEvent } from "./macro";
 
-  if (eleButton && !debuggerAttached) {
-    debuggerAttached = true;
+function getElement(event: MacroEvent) {
+  if (event.type !== "element") {
+    return;
+  }
 
+  if (event.id !== "") {
+    return document.getElementById(event.id);
+  } else {
+    return document.getElementsByClassName(event.className).item(event.index);
+  }
+}
+
+function clickElement({ event, button }: { event: MacroEvent, button: string }) {
+  const element = getElement(event);
+  if (!element) {
+    return;
+  }
+
+  if (element) {
     chrome.runtime.sendMessage({
       type: "debug.attach",
     });
-    console.log("Debugger Attach")
-  } 
 
-  if (eleButton) {
-    const rect = eleButton.getBoundingClientRect();
+    const rect = element.getBoundingClientRect();
     chrome.runtime.sendMessage({
       type: "click",
       position: {
@@ -23,7 +35,8 @@ function clickElement({ query, button }: { query: string, button: string }) {
       },
       button,
     })
-  }
+  } 
+
 }
 
 function checkQuerries(querries: Array<string>) {
@@ -38,13 +51,9 @@ function checkQuerries(querries: Array<string>) {
 }
 
 function dettachDebugger() {
-  if (debuggerAttached) {
-    debuggerAttached = false
-    chrome.runtime.sendMessage({
-      type: "debug.detach",
-    });
-    console.log("Debugger detach");
-  }
+  chrome.runtime.sendMessage({
+    type: "debug.detach",
+  });
 }
 
 export { clickElement, dettachDebugger, checkQuerries };
