@@ -28,7 +28,7 @@ body {
 }
 
 #main-body {
-	width: 250px;
+	width: 290px;
 }
 
 #popup-header {
@@ -60,6 +60,8 @@ body {
 
 .macro-item {
 	background-color: var(--blue-normal);
+	display: flex;
+	flex-direction: row;
 }
 
 .create-macro {

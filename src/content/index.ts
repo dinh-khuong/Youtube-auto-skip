@@ -1,8 +1,6 @@
 import { clickElement, checkQuerries, dettachDebugger } from './perform';
 import type { MacroEvent } from './macro';
 
-console.log("extention loaded");
-
 setInterval(() => {
   clickElement({
     query: ".ytp-skip-ad-button",
@@ -38,15 +36,14 @@ function drawBoundingBox(event: Event) {
   boxElement.style.top = `${rectElement.y}px`;
 }
 
-
 chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
-  if (message.type === "element.Highting") {
+  if (message.type === "pickup.Element") {
     document.addEventListener('mouseover', drawBoundingBox, { passive: true });
-// document.addEventListener('scrollend', drawBoundingBox, { passive: true });
+    document.addEventListener('click', addNewMacro);
   }
 })
 
-document.addEventListener('click', (event) => {
+function addNewMacro(event: PointerEvent) {
   if (!event.target) {
     return;
   }
@@ -71,16 +68,20 @@ document.addEventListener('click', (event) => {
       macro.index += 1;
     }
   }
-  document.removeEventListener('mouseover', drawBoundingBox);
 
   boxElement.style.width = "0"
   boxElement.style.height = "0";
   boxElement.style.left =  "0";
   boxElement.style.top = "0";
+  console.log("New event: ", macro);
 
   chrome.runtime.sendMessage({
     type: "popup.MacroEvent",
     macro,
   })
-});
+
+  document.removeEventListener('mouseover', drawBoundingBox);
+  document.removeEventListener('click', addNewMacro);
+}
+
 

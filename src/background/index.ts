@@ -34,9 +34,9 @@ function deatchToTab(tabId: number) {
 function clickMouse(tabId: number, message: any) {
   const position = message.position;
   const button = message.button;
-  console.log("Mouse click on: ", position)
-
-  console.log("Mouse Pressed");
+  // console.log("Mouse click on: ", position)
+  //
+  // console.log("Mouse Pressed");
   chrome.debugger.sendCommand({ tabId }, "Input.dispatchMouseEvent", {
     type: 'mousePressed',
     x: position.x,
@@ -45,7 +45,7 @@ function clickMouse(tabId: number, message: any) {
     button,
   }).then(() => {
       setTimeout(() => {
-        console.log("Mouse Released")
+        // console.log("Mouse Released")
         chrome.debugger.sendCommand({ tabId }, "Input.dispatchMouseEvent", {
           type: 'mouseReleased',
           clickCount: 1,
@@ -112,6 +112,15 @@ chrome.storage.local.get(["macros", "app"], (result) => {
     //@ts-ignore
     app = result.app;
   }
+
+  chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
+    if (message.type == "popup.MacroEvent" && app.onNewMacro) {
+      if (app.currentMacro >= 0) {
+        macros[app.currentMacro].events.push(message.macro);
+        updateGlobal();
+      }
+    }
+  });
 });
 
 function updateGlobal() {
@@ -120,12 +129,4 @@ function updateGlobal() {
 	});
 }
 
-chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
-	if (message.type == "popup.MacroEvent" && app.onNewMacro) {
-		if (app.currentMacro >= 0) {
-			macros[app.currentMacro].events.push(message.macro);
-			updateGlobal();
-		}
-	}
-});
 

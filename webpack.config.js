@@ -27,6 +27,10 @@ export default {
 			{
 				from: path.resolve('./src/popup.css'),
 				to: path.resolve('dist'),
+			},
+			{
+				from: path.resolve('./assets'),
+				to: path.resolve('dist') + '/assets',
 			}
 			]
 		}),

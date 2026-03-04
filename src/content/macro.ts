@@ -1,18 +1,23 @@
 export type MacroEvent = {
-	type: "element",
-	className: string,
-	id: string,
+  type: "element",
+  className: string,
+  id: string,
   index: number,
 } | {
-	type: "click",
-	position: {
-		x: number,
-		y: number,
-	}
+  type: "click",
+  position: {
+    x: number,
+    y: number,
+  }
 };
 
 export type Macro = {
-	name: string,
-	events: Array<MacroEvent>
-}
+  name: string,
+  events: Array<MacroEvent>
+};
 
+export type App = {
+  onNewEvent: boolean,
+  currentMacro: number,
+  view: "macro-list" | "event-list",
+};

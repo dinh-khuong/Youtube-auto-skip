@@ -1,14 +1,11 @@
-import type { Macro, MacroEvent } from "./content/macro";
+import type { Macro, MacroEvent, App } from "./content/macro";
 
 var macros: Array<Macro> = [];
-var app: {
-	onNewMacro: boolean,
-	currentMacro: number,
-} = {
-	onNewMacro: false,
+var app: App = {
+	onNewEvent: false,
+	view: "macro-list",
 	currentMacro: -1,
 };
-
 
 function updateGlobal() {
 	chrome.storage.local.set({ macros, app }, () => {
@@ -16,8 +13,20 @@ function updateGlobal() {
 	});
 }
 
+function render() {
+	if (app.view === "event-list") {
+		createMacro();
+	} else {
+		macroList();
+	}
+
+	document.getElementById("macro-item").addEventListener("click", macroList);
+	document.getElementById("create-macro-item").addEventListener("click", createMacro);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
 	console.log("DOM Loaded");
+
 	chrome.storage.local.get(["macros", "app"], (result) => {
 		if (result.macros) {
 			//@ts-ignore
@@ -28,19 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			app = result.app;
 		}
 
-		console.log(macros);
-
-		if (app.onNewMacro) {
-			createMacro();
-		} else {
-			macroList();
-		}
+		render();
 	});
-
-
-	document.getElementById("macro-item").addEventListener("click", macroList);
-	document.getElementById("create-macro-item").addEventListener("click", createMacro);
-
 })
 
 function macroList() {
@@ -61,8 +59,36 @@ function addMacroItem(macrosList: HTMLElement, macro: Macro) {
 	let newItem = document.createElement("div");
 	newItem.classList.add("macro-item");
 	newItem.innerHTML = `
-<input value="${macro.name}"></input>
+<input class="macro-name" value="${macro.name}"></input>
 `;
+	(newItem.getElementsByClassName("macro-name").item(0) as HTMLInputElement).addEventListener('change', (event) => {
+		macro.name = (event.target as HTMLInputElement).value;
+		updateGlobal();
+	});
+	let editBtn = document.createElement('button');
+	editBtn.innerHTML = `<img src="./assets/edit.svg" alt="Edit" width="20" height="20"></img>`;
+	editBtn.onclick = () => {
+		const index = macros.findIndex((ele) => ele === macro);
+		if (index !== -1) {
+			app.currentMacro = index;
+			app.onNewEvent = true;
+			app.view = "event-list";
+			updateGlobal();
+			render();
+		}
+	};
+	let deleteBtn = document.createElement('button');
+	deleteBtn.innerHTML = `<img src="./assets/trash.svg" alt="Delete" width="20" height="20"></img>`;
+	deleteBtn.onclick = () => {
+		macros = macros.filter((ele) => ele !== macro);
+		// app.view = "macro-list";
+		updateGlobal();
+		render();
+	};
+
+
+	newItem.appendChild(editBtn);
+	newItem.appendChild(deleteBtn);
 	macrosList.appendChild(newItem);
 }
 
@@ -81,25 +107,26 @@ function createMacro() {
 	element.innerHTML = `
 <div class="create-macro">
 	<div class="create-macro-btn-holder">
-		${app.onNewMacro ?
-		`<button id="pickup-btn">Pickup</button><button id="stop-btn">Stop</button>` :
-		`<button id="new-macro">New Macro</button>`
+		${app.onNewEvent ?
+			`<button id="pickup-btn">Pickup</button><button id="stop-btn">Stop</button>` :
+			`<button id="new-macro">New Macro</button>`
 		}
 	</div>
 	<div id="events-list" class="column-list">
 	</div>
 </div>
 `;
-	if (!app.onNewMacro) {
+	if (!app.onNewEvent) {
 		document.getElementById("new-macro").addEventListener('click', () => {
 			macros.push({
 				name: "new macro",
 				events: [],
 			});
-			app.onNewMacro = true;
+			app.onNewEvent = true;
+			app.view = "event-list";
 			app.currentMacro += 1;
-			createMacro();
 			updateGlobal();
+			render();
 		});
 	} else {
 		if (app.currentMacro >= 0) {
@@ -112,21 +139,18 @@ function createMacro() {
 			chrome.tabs.query({ active: true, currentWindow: true },
 				(tabs) => {
 					const currentTab = tabs[0];
-					if (!currentTab.id) {
-						return;
-					}
 					chrome.tabs.sendMessage(currentTab.id, {
-						type: "element.Highting",
+						type: "pickup.Element",
 					});
 				}
 			);
-
 		});
 
 		document.getElementById("stop-btn").addEventListener('click', () => {
-			app.onNewMacro = false;
-			createMacro();
+			app.onNewEvent = false;
+			app.view = "macro-list";
 			updateGlobal();
+			render();
 		});
 	}
 }
