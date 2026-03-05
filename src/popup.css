@@ -39,7 +39,7 @@ input[type="number"] {
 }
 
 #main-body {
-	width: 360px;
+	width: 375px;
 	h1 {
 		text-align: center;
 	}
@@ -78,6 +78,7 @@ input[type="number"] {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
+	padding: 3px 0;
 
 	.macro-event-condition {
 		display: flex;
@@ -88,12 +89,15 @@ input[type="number"] {
 	.macro-event-button {
 		display: flex;
 		flex-direction: row;
+		justify-content: center;
+		gap: 3px;
 	}
 
 	.macro-item-name-holder {
 		display: flex;
 		gap: 3px;
 	}
+
 	.macro-item-name {
 		width: 150px;
 		text-overflow: ellipsis;

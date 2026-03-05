@@ -89,7 +89,6 @@ function viewMacroItem(macrosList: HTMLElement, macro: Macro) {
 <div class="macro-item-btn-holder">
 	<button><img src="./assets/edit.svg" alt="Edit" width="20" height="20"></img></button>
 	<button><img src="./assets/trash.svg" alt="Edit" width="20" height="20"></img></button>
-
 </div>
 `;
 	(newItem.getElementsByClassName("macro-name").item(0) as HTMLInputElement).addEventListener('change', (event) => {
@@ -170,7 +169,7 @@ function viewConditionEvent(conditionItem: Element, event: MacroEvent, index: nu
 		let eventName = conditionItem.querySelector(".condition-event-name") as HTMLInputElement;
 		let checkerType = conditionItem.querySelector(".condition-checker-type") as HTMLSelectElement;
 		let deleteBtn = conditionItem.querySelector(".condition-delete") as HTMLButtonElement;
-		console.log("Condition ",event.condition);
+		console.log("Condition ", event.condition);
 
 		conditionType.value = event.condition.type;
 		checkerType.value = event.condition.checker;

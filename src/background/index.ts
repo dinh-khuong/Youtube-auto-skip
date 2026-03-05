@@ -29,7 +29,7 @@ function updateData(callback: () => void) {
     callback();
   });
 }
-updateData(() => {});
+updateData(() => { });
 
 function updateGlobal() {
   chrome.storage.local.set({ macros, app }, () => {
@@ -123,7 +123,7 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
     //       }
     //     }
     //   });
-      // break;
+    // break;
   }
 })
 

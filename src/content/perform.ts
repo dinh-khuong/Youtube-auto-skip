@@ -10,10 +10,10 @@ function getElement(event: MacroEvent | EventCondition) {
       const xpath = `//*[normalize-space(text()) = '${event.text}']`;
 
       const result = document.evaluate(
-        xpath, 
-        document, 
-        null, 
-        XPathResult.ORDERED_NODE_ITERATOR_TYPE, 
+        xpath,
+        document,
+        null,
+        XPathResult.ORDERED_NODE_ITERATOR_TYPE,
         null
       );
       if (!result && !result.invalidIteratorState) {
@@ -44,6 +44,7 @@ async function clickElement({ event, success, failed, }: { event: MacroEvent, su
 
     const rect = element.getBoundingClientRect();
 
+    console.log("Click", element);
     await chrome.runtime.sendMessage({
       type: "click",
       position: {
