@@ -12,7 +12,7 @@ function getElement(event: MacroEvent) {
   }
 }
 
-function clickElement({ event, button, success, failed, }: { event: MacroEvent, button: string, success: () => void, failed: () => void }) {
+function clickElement({ event, success, failed, }: { event: MacroEvent, success: () => void, failed: () => void }) {
   const element = getElement(event);
 
   if (element) {
@@ -29,7 +29,8 @@ function clickElement({ event, button, success, failed, }: { event: MacroEvent, 
         x: rect.x + rect.width / 2,
         y: rect.y + rect.height / 2,
       },
-      button,
+      button: event.button,
+      clickCount: event.clickCount,
     })
 
     success();

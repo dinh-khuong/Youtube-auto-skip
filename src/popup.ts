@@ -140,21 +140,69 @@ function addEventItem(eventList: HTMLElement, event: MacroEvent) {
 	let newItem = document.createElement("div");
 	newItem.classList.add("macro-item");
 	newItem.innerHTML = `
-<div class="macro-item-name">${getEventName(event)}</div>
-<select>
+<input name="select-name" class="macro-item-name" value="${getEventName(event)}"></input>
+<select name="select-type">
 	<option value="id">Id</option>
 	<option value="class">Class</option>
 	<option value="text">Text</option>
 </select>
+<input name="click-count" class="click-count" type="number" value="${event.clickCount}" />
+<select name="button">
+	<option value="left">Left</option>
+	<option value="right">Right</option>
+</select>
 `;
-	let typeSelect = newItem.getElementsByTagName("select").item(0);
+	let inputName = newItem.getElementsByClassName("macro-item-name").item(0) as HTMLInputElement;
+	inputName.addEventListener('blur', () => {
+		switch (event.type) {
+			case "class":
+				event.className = inputName.value;
+				break;
+			case "id":
+				event.id = inputName.value;
+				break;
+			case "text":
+				event.text = inputName.value;
+				break;
+		}
+
+		updateGlobal();
+		render();
+	})
+
+	const selectElements = newItem.getElementsByTagName("select");
+	let typeSelect = selectElements.item(0);
 	typeSelect.value = event.type;
-	typeSelect.addEventListener('change', (ev) => {
-		event.type = (ev.target as HTMLSelectElement).value as typeof event.type;
+	typeSelect.addEventListener('change', (_) => {
+		event.type = typeSelect.value as typeof event.type;
 
 		updateGlobal();
 		render();
 	});
+
+	let mouseClick = newItem.getElementsByClassName("click-count").item(0) as HTMLInputElement;
+	mouseClick.addEventListener('change', (ev) => {
+		let value = mouseClick.valueAsNumber;
+		if (value < 0) {
+			value = 0;
+		} else if (value > 4) {
+			value = 4;
+		}
+		event.clickCount = value;
+		mouseClick.value = value.toString();
+	});
+
+	mouseClick.addEventListener('blur', () => {
+		updateGlobal();
+		render();
+	})
+
+	let mouseBtn = selectElements.item(1);
+	mouseBtn.value = "left";
+	mouseBtn.addEventListener('change', (ev) => {
+		event.button = (ev.target as HTMLSelectElement).value as typeof event.button;
+	});
+
 	eventList.appendChild(newItem);
 }
 
@@ -209,8 +257,8 @@ function viewEventList() {
 		document.getElementById("stop-btn").addEventListener('click', () => {
 			app.currentMacro = -1;
 			app.view = "macro-list";
-			viewMacroList();
 			updateGlobal();
+			render();
 		});
 	}
 }

@@ -69,6 +69,7 @@ function deatchToTab(tabId: number) {
 function clickMouse(tabId: number, message: any) {
   const position = message.position;
   const button = message.button;
+  const clickCount = message.clickCount;
 
   // console.log("Mouse click on: ", position)
   // console.log("Mouse Pressed");
@@ -76,19 +77,19 @@ function clickMouse(tabId: number, message: any) {
     type: 'mousePressed',
     x: position.x,
     y: position.y,
-    clickCount: 1,
+    clickCount,
     button,
   }).then(() => {
     setTimeout(() => {
       // console.log("Mouse Released")
       chrome.debugger.sendCommand({ tabId }, "Input.dispatchMouseEvent", {
         type: 'mouseReleased',
-        clickCount: 1,
         x: position.x,
         y: position.y,
         button,
+        clickCount,
       })
-    }, 150);
+    }, 100);
   });
 }
 

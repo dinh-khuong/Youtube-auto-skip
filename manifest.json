@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Youtube skip add",
-  "description": "Skip add when pause",
+  "name": "Auto Clicker",
+  "description": "Auto click html elements",
   "version": "1.0.0",
   "background": {
     "service_worker": "background.js"
@@ -9,7 +9,7 @@
   "permissions": ["debugger", "alarms", "storage", "runtime", "tabs"],
   "content_scripts": [
     {
-      "matches": ["https://www.youtube.com/*", "<all_urls>"],
+      "matches": ["<all_urls>"],
       "js": ["contentScript.js"]
     }
   ],

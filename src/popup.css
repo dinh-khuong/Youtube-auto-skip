@@ -28,7 +28,7 @@ body {
 }
 
 #main-body {
-	width: 290px;
+	width: 310px;
 }
 
 #popup-header {
@@ -44,6 +44,7 @@ body {
 
 .header-item:hover {
 	background-color: var(--background-selection);
+	cursor: pointer;
 	color: var(--white-bright);
 }
 
@@ -68,6 +69,9 @@ body {
 		text-overflow: ellipsis;
 	}
 
+	.click-count {
+		width: 25px;
+	}
 }
 
 

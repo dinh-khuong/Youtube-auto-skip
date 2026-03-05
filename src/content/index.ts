@@ -1,5 +1,5 @@
 import { clickElement, dettachDebugger } from './perform';
-import { type MacroEvent, type Macro, type App } from './macro';
+import { type MacroEvent, type Macro } from './macro';
 
 var macros: Array<Macro> = [];
 // var app: App = {
@@ -51,7 +51,7 @@ function runMacro(macro: Macro) {
 
     const event = macro.events[index];
     clickElement({
-      event, button: "left",
+      event,
       success: () => {
         setTimeout(() => {
           oneEvent(index + 1, index);
@@ -133,6 +133,8 @@ function addNewMacro(event: PointerEvent) {
     type: "class",
     text: currentElement.textContent.length < 128 ? currentElement.textContent : "",
     className: eleClasses,
+    clickCount: 1,
+    button: "left",
     index: 0,
   };
 

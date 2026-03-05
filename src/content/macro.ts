@@ -4,6 +4,8 @@ export type MacroEvent = {
   className: string,
   text: string,
   index: number,
+  clickCount: number,
+  button: "left" | "right",
 };
 
 export type Macro = {
