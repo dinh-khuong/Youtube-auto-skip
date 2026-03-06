@@ -8,7 +8,7 @@ var app: App = {
   currentMacroId: -1,
 };
 
-function updateGlobal(callback: () => void) {
+function getData(callback: () => void) {
   chrome.storage.local.get(["macros", "app"], (result) => {
     if (result.macros) {
       //@ts-ignore
@@ -27,7 +27,7 @@ function setData() {
   chrome.storage.local.set({ macros, app });
 }
 
-updateGlobal(() => {
+getData(() => {
   console.log("Run macro", macros);
   macros.filter((ele) => ele.active).forEach(runMacro);
 });
@@ -95,6 +95,7 @@ function drawBoundingBox(event: Event) {
   if (!event.target) {
     return;
   }
+
   const currentElement = event.target as HTMLElement;
 
   const rectElement = currentElement.getBoundingClientRect();
@@ -105,17 +106,17 @@ function drawBoundingBox(event: Event) {
   boxElement.style.top = `${rectElement.y}px`;
 }
 
-chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
+chrome.runtime.onMessage.addListener((message: any, _sender: chrome.runtime.MessageSender, _sendResponse: (response?: any) => void) => {
   switch (message.type) {
     case "pickup.Element":
       boxElement.style.display = "";
       document.addEventListener('mouseover', drawBoundingBox, { passive: true });
-      document.addEventListener('click', addNewMacro, { passive: true, once: true });
-      updateGlobal(() => { });
+      document.addEventListener('click', addNewMacro, { capture: true, once: true });
+      getData(() => { });
       break;
     case "pickup.Condition":
       boxElement.style.display = "";
-      document.addEventListener('mouseover', drawBoundingBox, { passive: true, once: true });
+      document.addEventListener('mouseover', drawBoundingBox, { passive: true });
 
       function addNewCondition(event: PointerEvent) {
         if (!event.target) {
@@ -126,8 +127,8 @@ chrome.runtime.onMessage.addListener((message: any, sender: chrome.runtime.Messa
         document.removeEventListener('mouseover', drawBoundingBox);
       }
 
-      document.addEventListener('click', addNewCondition, { passive: true });
-      updateGlobal(() => { });
+      document.addEventListener('click', addNewCondition, { once: true, capture: true });
+      getData(() => { });
       break;
     case "play.Macro":
       runMacro(message.macro);
@@ -178,6 +179,7 @@ function addNewMacro(event: PointerEvent) {
   const eleClasses = currentElement.classList.toString();
 
   let macroEvent: MacroEvent = {
+    eventId: app.createIdx++,
     type: "class",
     id: eleId,
     className: eleClasses,

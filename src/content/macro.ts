@@ -9,6 +9,7 @@ export type EventCondition = {
 };
 
 export type MacroEvent = {
+  eventId: number,
   type: "class" | "id" | "text",
   id: string,
   className: string,
@@ -20,6 +21,7 @@ export type MacroEvent = {
 };
 
 export type Macro = {
+  macroId: number,
   id: number,
   active: boolean,
   name: string,

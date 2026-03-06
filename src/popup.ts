@@ -15,11 +15,11 @@ function updateGlobal() {
           type: "stop.Macro",
           macro,
         }).then(() => {
-            chrome.tabs.sendMessage(tab.id, {
-              type: "play.Macro",
-              macro,
-            });
+          chrome.tabs.sendMessage(tab.id, {
+            type: "play.Macro",
+            macro,
           });
+        });
       });
     }
   });
@@ -96,8 +96,8 @@ function viewMacroItem(macrosList: HTMLElement, macro: Macro) {
 <div class="macro-item-name-holder">
   <button>
     ${macro.active ?
-    `<img src="./assets/pause.svg" alt="Pause" width="20" height="20"></img>` :
-    `<img src="./assets/play.svg" alt="Play" width="20" height="20"></img>`
+      `<img src="./assets/pause.svg" alt="Pause" width="20" height="20"></img>` :
+      `<img src="./assets/play.svg" alt="Play" width="20" height="20"></img>`
     }
   </button>
   <input name="macro-name" class="macro-name" value="${macro.name}"></input>
@@ -321,9 +321,9 @@ function viewEventItem(eventList: HTMLElement, event: MacroEvent, eventIdx: numb
 
   let deleteBtn = newItem.getElementsByClassName("delete-event").item(0) as HTMLButtonElement;
   deleteBtn.addEventListener('click', () => {
-    let index = macros.findIndex((ele) => ele.id == app.currentMacroId);
-    let events = macros[index].events;
-    macros[index].events = events.filter((ele) => ele.id != event.id);
+    let macroIdx = macros.findIndex((ele) => ele.id === app.currentMacroId);
+    let events = macros[macroIdx].events;
+    macros[macroIdx].events = events.filter((ele) => ele.eventId !== event.eventId);
 
     updateGlobal();
     render();
@@ -339,8 +339,8 @@ function viewEventList() {
 <div class="create-macro">
   <div class="create-macro-btn-holder">
     ${app.currentMacroId === -1 ?
-    `<button id="new-macro">New Macro</button>` :
-    `<button id="pickup-btn">Pickup</button><button id="stop-btn">Stop</button>`
+      `<button id="new-macro">New Macro</button>` :
+      `<button id="pickup-btn">Pickup</button><button id="stop-btn">Stop</button>`
     }
   </div>
   <div id="events-list" class="column-list">
@@ -349,15 +349,15 @@ function viewEventList() {
 `;
   if (app.currentMacroId == -1) {
     document.getElementById("new-macro").addEventListener('click', () => {
-      app.createIdx++;
       macros.push({
-        id: app.createIdx,
+        macroId: app.createIdx++,
+        id: app.createIdx++,
         name: "new macro",
         active: false,
         events: [],
       });
       app.view = "event-list";
-      app.currentMacroId = app.createIdx;
+      app.currentMacroId = macros[macros.length - 1].id;
       updateGlobal();
       render();
     });
